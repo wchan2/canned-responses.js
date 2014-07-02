@@ -6,7 +6,6 @@
   "scripts": {
     "test": "grunt test"
   },
-  "preinstall": "npm install -g http-server",
   "repository": {
     "type": "git",
     "url": "http://github.com/wchan2/resty.js"
@@ -16,5 +15,8 @@
   "dependencies": {
     "lodash": "^2.4.1",
     "request": "^2.36.0"
+  },
+  "devDependencies": {
+    "lodash": "^2.4.1"
   }
 }
