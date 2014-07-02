@@ -4,6 +4,8 @@ var http = require('http'),
 
 // TODO: allow the directory of which to service the static requests to be changed
 // for PUT or POST requests, it might make sense to dynamically add and update the list
+// allow file extensions options
+// allow an option to read from configuration file
 var parseRequest = function(request) {
   var urlParts = _.compact(request.url.split('/')),
       fileName = [request.method.toLowerCase()];
