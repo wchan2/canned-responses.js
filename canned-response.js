@@ -16,7 +16,7 @@ var getFileName = function(method, url) {
   return fileName;
 };
 
-var getResponsePath = function(fileName) {
+var getResponseDirPath = function(fileName) {
   var indexOfResponsePath,
       responsePath,
       responseDirWithoutSlashes;
@@ -24,7 +24,7 @@ var getResponsePath = function(fileName) {
   indexOfResponsePath = process.argv.indexOf('-path');
 
   if (indexOfResponsePath != -1 && indexOfResponsePath <= process.argv.length - 1) {
-    responseDirWithoutSlashes = process.argv[indexOfResponsePath + 1].replace(/\//g, '');
+    responseDirWithoutSlashes = process.argv[indexOfResponsePath + 1].replace(/(^\/)|(\/$)/g, '');
     responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
   } else {
     responsePath = './responses';
@@ -33,17 +33,32 @@ var getResponsePath = function(fileName) {
   return [responsePath, fileName].join('/');
 };
 
-var server = http.createServer(function(request, response) {
-  var fileName = getFileName(request.method, request.url);
-  if (request.url !== '/favicon.ico') {
-    fs.readFile(getResponsePath(fileName), function(err, data) {
-      response.writeHead(200, {"Content-Type": "text/json"});
-      response.write(data);
+var sendResponse = function(responseFilePath, response) {
+  return function(exists) {
+    if (exists) {
+      fs.readFile(responseFilePath, function(err, data) {
+        response.writeHead(200, {"Content-Type": "text/json"});
+        response.write(data);
+        response.end();
+      });
+    } else {
+      response.writeHead(404);
+      response.write({
+        status: 404,
+        message: "Not Found"
+      });
       response.end();
-    });
+    }
+  }
+};
+
+var server = http.createServer(function(request, response) {
+  var fileName = getFileName(request.method, request.url),
+    responseFilePath = getResponseDirPath(fileName);
+  if (request.url !== '/favicon.ico') {
+    fs.exists(responseFilePath, sendResponse(responseFilePath, response));
   }
 });
-
 
 // TODO: allow the ports to be changed
 server.listen('8080');
