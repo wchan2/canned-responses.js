@@ -8,6 +8,8 @@ var http = require('http'),
 // for PUT or POST requests, it might make sense to dynamically add and update the list
 // allow file extensions options
 // allow an option to read from configuration file
+// allow ports to be changed
+// reload the server on addition of response files
 var getFileName = function(method, url) {
   var urlParts = _.compact(url.split('/')),
       fileName = [method.toLowerCase()];
@@ -60,6 +62,5 @@ var server = http.createServer(function(request, response) {
   }
 });
 
-// TODO: allow the ports to be changed
 server.listen('8080');
 console.log('Listening to port 8080...');
