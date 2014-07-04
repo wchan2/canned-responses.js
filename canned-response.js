@@ -43,10 +43,10 @@ var sendResponse = function(responseFilePath, response) {
       });
     } else {
       response.writeHead(404);
-      response.write({
+      response.write(JSON.stringify({
         status: 404,
         message: "Not Found"
-      });
+      }));
       response.end();
     }
   }
