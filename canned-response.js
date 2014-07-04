@@ -14,10 +14,14 @@ var getFileName = function(method, url) {
   return fileName;
 };
 
+var getResponsePath = function(fileName) {
+  return ['.', 'responses', fileName].join('/');
+};
+
 var server = http.createServer(function(request, response) {
   var fileName = getFileName(request.method, request.url);
   if (request.url !== '/favicon.ico') {
-    fs.readFile('./responses/' + fileName, function(err, data) {
+    fs.readFile(getResponsePath(fileName), function(err, data) {
       response.writeHead(200, {"Content-Type": "text/json"});
       response.write(data);
       response.end();
