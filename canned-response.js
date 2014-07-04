@@ -6,18 +6,23 @@ var http = require('http'),
 // for PUT or POST requests, it might make sense to dynamically add and update the list
 // allow file extensions options
 // allow an option to read from configuration file
-var parseRequest = function(request) {
-  var urlParts = _.compact(request.url.split('/')),
-      fileName = [request.method.toLowerCase()];
+var getFileName = function(method, url) {
+  var urlParts = _.compact(url.split('/')),
+      fileName = [method.toLowerCase()];
 
   fileName = fileName.concat(urlParts).join('.') + '.json';
   return fileName;
 };
 
 var server = http.createServer(function(request, response) {
-  response.writeHead(200, {"Content-Type": "text/json"});
-  response.write(parseRequest(request));
-  response.end();
+  var fileName = getFileName(request.method, request.url);
+  if (request.url !== '/favicon.ico') {
+    fs.readFile('./responses/' + fileName, function(err, data) {
+      response.writeHead(200, {"Content-Type": "text/json"});
+      response.write(data);
+      response.end();
+    });
+  }
 });
 
 // TODO: allow the ports to be changed
