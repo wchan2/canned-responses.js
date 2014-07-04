@@ -1,3 +1,5 @@
+#!/usr/local/bin/node
+
 var http = require('http'),
     fs = require('fs'),
     _ = require('lodash');
@@ -15,7 +17,20 @@ var getFileName = function(method, url) {
 };
 
 var getResponsePath = function(fileName) {
-  return ['.', 'responses', fileName].join('/');
+  var indexOfResponsePath,
+      responsePath,
+      responseDirWithoutSlashes;
+
+  indexOfResponsePath = process.argv.indexOf('-path');
+
+  if (indexOfResponsePath != -1 && indexOfResponsePath <= process.argv.length - 1) {
+    responseDirWithoutSlashes = process.argv[indexOfResponsePath + 1].replace(/\//g, '');
+    responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
+  } else {
+    responsePath = './responses';
+  }
+
+  return [responsePath, fileName].join('/');
 };
 
 var server = http.createServer(function(request, response) {
@@ -28,6 +43,7 @@ var server = http.createServer(function(request, response) {
     });
   }
 });
+
 
 // TODO: allow the ports to be changed
 server.listen('8080');
