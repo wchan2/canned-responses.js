@@ -10,6 +10,7 @@ var http = require('http'),
 // allow an option to read from configuration file
 // allow ports to be changed
 // reload the server on addition of response files
+// properly throw errors for invalid command line options
 var getFileName = function(method, url) {
   var urlParts = _.compact(url.split('/')),
       fileName = [method.toLowerCase()];
@@ -67,5 +68,9 @@ var server = http.createServer(function(request, response) {
   }
 });
 
-server.listen('8080');
-console.log('Listening to port 8080...');
+// ====
+// SETTING UP THE PORT
+server.listen(getCommandLineOptions('port') || '8080');
+console.log(_.template('Listening to port <%= port %>...', {
+  port: getCommandLineOptions('port') || '8080'
+}));
