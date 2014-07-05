@@ -12,14 +12,6 @@ var http = require('http'),
 // reload the server on addition of response files
 // properly throw errors for invalid command line options
 // cache the results if it had previously read from the server unless updated
-var getFileName = function(method, url) {
-  var urlParts = _.compact(url.split('/')),
-      fileName = [method.toLowerCase()];
-
-  fileName = fileName.concat(urlParts).join('.') + '.json';
-  return fileName;
-};
-
 var getCommandLineOptions = function(option) {
   var optionIndex; 
   optionIndex = process.argv.indexOf('-' + option);
@@ -28,44 +20,67 @@ var getCommandLineOptions = function(option) {
   }
 };
 
-var getResponseDirPath = function(fileName) {
-  var responsePath,
-      responseDirWithoutSlashes;
-
-  if (getCommandLineOptions('path')) {
-    responseDirWithoutSlashes = getCommandLineOptions('path').replace(/(^\/)|(\/$)/g, '');
-    responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
-  } else {
-    responsePath = './responses';
-  }
-
-  return [responsePath, fileName].join('/');
+// ====
+// RESPONSE CONSTRUCTOR
+var Response = function(options) {
+  this.options = options;
+  this.method = options.method;
+  this.url = options.url;
 };
+_(Response.prototype).extend({
+  send: function(response) {
+    fs.exists(this.getFilePath(), this.readResponseFile(this.getFilePath(), response));
+  },
+  getFilePath: function() {
+    var urlParts = _.compact(this.url.split('/')),
+        filename = [this.method.toLowerCase()].concat(urlParts).join('.') + '.json';
+    return [this.getResponseDirPath(), filename].join('/');
+  },
+  getResponseDirPath: function() {
+    var responsePath,
+        responseDirWithoutSlashes;
 
-var sendResponse = function(responseFilePath, response) {
-  return function(exists) {
-    if (exists) {
-      fs.readFile(responseFilePath, function(err, data) {
-        response.writeHead(200, {"Content-Type": "text/json"});
-        response.write(data);
-        response.end();
-      });
+    if (getCommandLineOptions('path')) {
+      responseDirWithoutSlashes = getCommandLineOptions('path').replace(/(^\/)|(\/$)/g, '');
+      responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
     } else {
-      response.writeHead(404);
-      response.write(JSON.stringify({
-        status: 404,
-        message: "Not Found"
-      }));
-      response.end();
+      responsePath = './responses';
+    }
+
+    return responsePath;
+  },
+  responseIsValid: function() {
+    return this.url !== '/favicon.ico';
+  },
+  readResponseFile: function(responseFilePath, response) {
+    return function(exists) {
+      if (exists) {
+        fs.readFile(responseFilePath, function(err, data) {
+          response.writeHead(200, {"Content-Type": "text/json"});
+          response.write(data);
+          response.end();
+        });
+      } else {
+        response.writeHead(404);
+        response.write(JSON.stringify({
+          status: 404,
+          message: "Not Found"
+        }));
+        response.end();
+      }
     }
   }
-};
+});
 
+// ====
+// CREATING THE SERVER
 var server = http.createServer(function(request, response) {
-  var fileName = getFileName(request.method, request.url),
-    responseFilePath = getResponseDirPath(fileName);
-  if (request.url !== '/favicon.ico') {
-    fs.exists(responseFilePath, sendResponse(responseFilePath, response));
+  var responseSender = new Response({
+    method: request.method,
+    url: request.url
+  });
+  if (responseSender.responseIsValid()) {
+    responseSender.send(response);
   }
 });
 
