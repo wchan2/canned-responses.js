@@ -11,6 +11,7 @@ var http = require('http'),
 // allow ports to be changed
 // reload the server on addition of response files
 // properly throw errors for invalid command line options
+// cache the results if it had previously read from the server unless updated
 var getFileName = function(method, url) {
   var urlParts = _.compact(url.split('/')),
       fileName = [method.toLowerCase()];
