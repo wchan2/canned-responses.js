@@ -1,9 +1,4 @@
 {
-	"people": [
-		{
-			"firstName": "Foo",
-			"lastName": "Bar",
-			"age": 18
-		}
-	]
+	"status": "success",
+	"message": "Hello World!"
 }

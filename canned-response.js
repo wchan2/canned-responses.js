@@ -18,15 +18,20 @@ var getFileName = function(method, url) {
   return fileName;
 };
 
+var getCommandLineOptions = function(option) {
+  var optionIndex; 
+  optionIndex = process.argv.indexOf('-' + option);
+  if (optionIndex != -1 && optionIndex <= process.argv.length - 1) {
+    return process.argv[optionIndex + 1];
+  }
+};
+
 var getResponseDirPath = function(fileName) {
-  var indexOfResponsePath,
-      responsePath,
+  var responsePath,
       responseDirWithoutSlashes;
 
-  indexOfResponsePath = process.argv.indexOf('-path');
-
-  if (indexOfResponsePath != -1 && indexOfResponsePath <= process.argv.length - 1) {
-    responseDirWithoutSlashes = process.argv[indexOfResponsePath + 1].replace(/(^\/)|(\/$)/g, '');
+  if (getCommandLineOptions('path')) {
+    responseDirWithoutSlashes = getCommandLineOptions('path').replace(/(^\/)|(\/$)/g, '');
     responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
   } else {
     responsePath = './responses';
