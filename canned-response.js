@@ -22,9 +22,7 @@ var getCommandLineOptions = function(option) {
 
 // ====
 // RESPONSE FILE
-var ResponseFile = function() {
-
-};
+var ResponseFile = function() {};
 _(ResponseFile.prototype).extend({
   getFilePath: function(method, url) {
     var urlParts = _.compact(url.split('/')),
