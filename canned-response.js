@@ -26,8 +26,12 @@ var ResponseFile = function() {};
 _(ResponseFile.prototype).extend({
   getFilePath: function(method, url) {
     var urlParts = _.compact(url.split('/')),
-        filename = [method.toLowerCase()].concat(urlParts).join('.') + '.json';
+        filename = [method.toLowerCase()].concat(urlParts).join('.') + this.getFileFormat();
+
     return [this.getResponseDirPath(), filename].join('/');
+  },
+  getFileFormat: function() {
+      return '.' + (getCommandLineOptions('format') || 'json');
   },
   getResponseDirPath: function() {
     var responsePath,
@@ -48,9 +52,12 @@ _(ResponseFile.prototype).extend({
 ResponseFile.get = (function() {
   var instance;
   return function() {
-    return instance || new ResponseFile();
+    if (!instance) {
+      instance = new ResponseFile();
+    }
+    return instance;
   };
-});
+})();
 
 // ====
 // RESPONSE
@@ -61,7 +68,8 @@ var ResponseSender = function(options) {
 };
 _(ResponseSender.prototype).extend({
   send: function(response) {
-    fs.exists(this.getFilePath(), this.readResponseFile(ResponseFile.get().getFilePath(this.method, this.url), response));
+    var filePath = ResponseFile.get().getFilePath(this.method, this.url);
+    fs.exists(filePath, this.readResponseFile(filePath, response));
   },
   urlIsValid: function() {
     return this.url !== '/favicon.ico';
