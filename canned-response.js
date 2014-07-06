@@ -21,25 +21,21 @@ var getCommandLineOptions = function(option) {
 };
 
 // ====
-// RESPONSE CONSTRUCTOR
-var Response = function(options) {
-  this.options = options;
-  this.method = options.method;
-  this.url = options.url;
+// RESPONSE FILE
+var ResponseFile = function() {
+
 };
-_(Response.prototype).extend({
-  send: function(response) {
-    fs.exists(this.getFilePath(), this.readResponseFile(this.getFilePath(), response));
-  },
-  getFilePath: function() {
-    var urlParts = _.compact(this.url.split('/')),
-        filename = [this.method.toLowerCase()].concat(urlParts).join('.') + '.json';
+_(ResponseFile.prototype).extend({
+  getFilePath: function(method, url) {
+    var urlParts = _.compact(url.split('/')),
+        filename = [method.toLowerCase()].concat(urlParts).join('.') + '.json';
     return [this.getResponseDirPath(), filename].join('/');
   },
   getResponseDirPath: function() {
     var responsePath,
         responseDirWithoutSlashes;
 
+    // TODO: create a commands object to allow this to be overridden
     if (getCommandLineOptions('path')) {
       responseDirWithoutSlashes = getCommandLineOptions('path').replace(/(^\/)|(\/$)/g, '');
       responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
@@ -48,8 +44,28 @@ _(Response.prototype).extend({
     }
 
     return responsePath;
+  }
+});
+
+ResponseFile.get = (function() {
+  var instance;
+  return function() {
+    return instance || new ResponseFile();
+  };
+});
+
+// ====
+// RESPONSE
+var ResponseSender = function(options) {
+  this.options = options;
+  this.method = options.method;
+  this.url = options.url;
+};
+_(ResponseSender.prototype).extend({
+  send: function(response) {
+    fs.exists(this.getFilePath(), this.readResponseFile(ResponseFile.get().getFilePath(this.method, this.url), response));
   },
-  responseIsValid: function() {
+  urlIsValid: function() {
     return this.url !== '/favicon.ico';
   },
   readResponseFile: function(responseFilePath, response) {
@@ -75,11 +91,11 @@ _(Response.prototype).extend({
 // ====
 // CREATING THE SERVER
 var server = http.createServer(function(request, response) {
-  var responseSender = new Response({
+  var responseSender = new ResponseSender({
     method: request.method,
     url: request.url
   });
-  if (responseSender.responseIsValid()) {
+  if (responseSender.urlIsValid()) {
     responseSender.send(response);
   }
 });
