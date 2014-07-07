@@ -6,12 +6,16 @@ var http = require('http'),
 
 // TODO: allow the directory of which to service the static requests to be changed
 // for PUT or POST requests, it might make sense to dynamically add and update the list
-// allow file extensions options
-// allow an option to read from configuration file
-// allow ports to be changed
-// reload the server on addition of response files
-// properly throw errors for invalid command line options
+// reload the server on response files when saved
 // cache the results if it had previously read from the server unless updated
+
+// TODO
+// throw errors for invalid command line options
+// allow for managing different command line options
+// - port
+// - format
+// - responses folder path
+// - configfile to read from a configuration file
 var getCommandLineOptions = function(option) {
   var optionIndex; 
   optionIndex = process.argv.indexOf('-' + option);
