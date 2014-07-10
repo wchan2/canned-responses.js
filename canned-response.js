@@ -71,8 +71,8 @@ var ResponseSender = function(options) {
   this.url = options.url;
 };
 _(ResponseSender.prototype).extend({
-  send: function(response) {
-    var filePath = ResponseFile.get().getFilePath(this.method, this.url);
+  send: function(response, responseFile) {
+    var filePath = responseFile.getFilePath(this.method, this.url);
     fs.exists(filePath, this.readResponseFile(filePath, response));
   },
   urlIsValid: function() {
@@ -100,13 +100,13 @@ _(ResponseSender.prototype).extend({
 
 // ====
 // CREATING THE SERVER
-var server = http.createServer(function(request, response) {
+var server = http.createServer(function(request, httpResponse) {
   var responseSender = new ResponseSender({
     method: request.method,
     url: request.url
   });
   if (responseSender.urlIsValid()) {
-    responseSender.send(response);
+    responseSender.send(httpResponse, ResponseFile.get());
   }
 });
 
