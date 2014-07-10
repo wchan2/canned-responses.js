@@ -4,9 +4,12 @@ var http = require('http'),
     fs = require('fs'),
     _ = require('lodash');
 
+
+// ====
 // TODO:
 // for PUT or POST requests, it might make sense to dynamically add and update the list
-// cache the results if it had previously read from the server unless updated
+// watch for the file changes to reload teh cache
+// inject the command arguments instead of calling the function directly
 
 // TODO
 // throw errors for invalid command line options
@@ -24,23 +27,13 @@ var getCommandLineOptions = function(option) {
 };
 
 // ====
-// RESPONSE FILE
-var ResponseFile = function() {};
-_(ResponseFile.prototype).extend({
-  getFilePath: function(method, url) {
-    var urlParts = _.compact(url.split('/')),
-        filename = [method.toLowerCase()].concat(urlParts).join('.') + this.getFileFormat();
-
-    return [this.getResponseDirPath(), filename].join('/');
-  },
-  getFileFormat: function() {
-      return '.' + (getCommandLineOptions('format') || 'json');
-  },
-  getResponseDirPath: function() {
+// RESPONSE DIR
+var ResponseDir = function() {};
+_(ResponseDir.prototype).extend({
+  getPath: function() {
     var responsePath,
         responseDirWithoutSlashes;
 
-    // TODO: create a commands object to allow this to be overridden
     if (getCommandLineOptions('path')) {
       responseDirWithoutSlashes = getCommandLineOptions('path').replace(/(^\/)|(\/$)/g, '');
       responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
@@ -52,66 +45,109 @@ _(ResponseFile.prototype).extend({
   }
 });
 
-ResponseFile.get = (function() {
+ResponseDir.get = (function() {
   var instance;
   return function() {
     if (!instance) {
-      instance = new ResponseFile();
+      instance = new ResponseDir();
     }
     return instance;
   };
 })();
 
 // ====
-// RESPONSE
-var ResponseSender = function(options) {
+// RESPONSE FILE
+var ResponseFile = function(options) {
   this.options = options;
-  this.method = options.method;
-  this.url = options.url;
 };
-_(ResponseSender.prototype).extend({
-  send: function(response, responseFile) {
-    var filePath = responseFile.getFilePath(this.method, this.url);
-    fs.exists(filePath, this.readResponseFile(filePath, response));
+_(ResponseFile.prototype).extend({
+  getContents: function() {
+
   },
-  urlIsValid: function() {
+  getAbsolutePath: function(responseDir) {
+    var urlParts = _.compact(this.options.url.split('/')),
+        filename = [this.options.method.toLowerCase()].concat(urlParts).join('.') + this.getFileExt();
+
+    return [responseDir, filename].join('/');
+  },
+  getFileExt: function() {
+    return '.' + (getCommandLineOptions('format') || 'json');
+  }
+});
+
+// ====
+// CACHE
+var Cache = function() {};
+_(Cache.prototype).extend({
+  _cache: {},
+  set: function(key, data) {
+    this._cache[key] = data;
+  },
+  get: function(key) {
+    return this._cache[key];
+  }
+});
+
+// ====
+// URI
+var URI = function(uri) {
+  this.uri = uri;
+};
+_(URI.prototype).extend({
+  isValid: function() {
     return this.url !== '/favicon.ico';
+  }
+});
+
+// ====
+// HTTP Response
+var HTTPResponse = function(response) {
+  this.response = response;
+};
+_(HTTPResponse.prototype).extend({
+  sendFoundResponse: function(data) {
+    this.response.writeHead(200, {"Content-Type": "application/" + (getCommandLineOptions('format') || 'json') });
+    this.response.write(data);
+    this.response.end();
   },
-  readResponseFile: function(responseFilePath, response) {
-    return function(exists) {
-      if (exists) {
-        fs.readFile(responseFilePath, function(err, data) {
-          response.writeHead(200, {"Content-Type": "application/" + (getCommandLineOptions('format') || 'json') });
-          response.write(data);
-          response.end();
-        });
-      } else {
-        response.writeHead(404);
-        response.write(JSON.stringify({
-          status: 404,
-          message: "Not Found"
-        }));
-        response.end();
-      }
-    }
+  sendError: function() {
+    this.response.writeHead(404);
+    this.response.write(JSON.stringify({
+      status: 404,
+      message: "Not Found"
+    }));
+    this.response.end();
   }
 });
 
 // ====
 // CREATING THE SERVER
-var server = http.createServer(function(request, httpResponse) {
-  var responseSender = new ResponseSender({
-    method: request.method,
-    url: request.url
+var server = http.createServer(function(request, response) {
+  var cache = new Cache(),
+      uri = new URI(request.url),
+      httpResponse = new HTTPResponse(response),
+      responseFile = new ResponseFile(request),
+      responseFileAbsolutePath = responseFile.getAbsolutePath(ResponseDir.get().getPath());
+
+  fs.exists(responseFileAbsolutePath, function(exists) {
+    if (uri.isValid() && exists) {
+      if (cache.get(responseFileAbsolutePath)) {
+        httpResponse.send(cache.get(responseFileAbsolutePath));
+      } else {
+        fs.readFile(responseFileAbsolutePath, function(err, data) {
+          cache.set(responseFileAbsolutePath, data);
+          httpResponse.sendFoundResponse(cache.get(responseFileAbsolutePath));
+        });
+      }
+    } else if (uri.isValid() && !exists) {
+      httpResponse.sendError();
+      console.log(['404:', responseFileAbsolutePath, 'not found.'].join(' '));
+    }
   });
-  if (responseSender.urlIsValid()) {
-    responseSender.send(httpResponse, ResponseFile.get());
-  }
 });
 
 // ====
 // SETTING UP THE PORT
 server.listen(getCommandLineOptions('port') || '8080');
-console.log(_.template('Listening to port <%= port %>...', {
-  port: getCommandLineOptions('port') || '8080'
-}));
+console.log(_.template('Listening to port <%= port %>...', { port: getCommandLineOptions('port') || '8080' }));
+
