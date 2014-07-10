@@ -4,9 +4,8 @@ var http = require('http'),
     fs = require('fs'),
     _ = require('lodash');
 
-// TODO: allow the directory of which to service the static requests to be changed
+// TODO:
 // for PUT or POST requests, it might make sense to dynamically add and update the list
-// reload the server on response files when saved
 // cache the results if it had previously read from the server unless updated
 
 // TODO
@@ -82,7 +81,7 @@ _(ResponseSender.prototype).extend({
     return function(exists) {
       if (exists) {
         fs.readFile(responseFilePath, function(err, data) {
-          response.writeHead(200, {"Content-Type": "text/json"});
+          response.writeHead(200, {"Content-Type": "application/" + (getCommandLineOptions('format') || 'json') });
           response.write(data);
           response.end();
         });
