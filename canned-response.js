@@ -10,6 +10,7 @@ var http = require('http'),
 // for PUT or POST requests, it might make sense to dynamically add and update the list
 // watch for the file changes to reload teh cache
 // inject the command arguments instead of calling the function directly
+// write a logger
 
 // TODO
 // throw errors for invalid command line options
@@ -92,47 +93,42 @@ _(URI.prototype).extend({
 });
 
 // ====
-// HTTP Response
-var HTTPResponse = function(response) {
-  this.response = response;
+// HTTP RESPONSE
+var sendResponse = function(code) {
+  var contentType = {"Content-Type": "application/" + getExt() };
+  return function(response, data) {
+    response.writeHead(code, contentType);
+    response.write(data);
+    response.end();
+  };
 };
-_(HTTPResponse.prototype).extend({
-  sendFoundResponse: function(data) {
-    this.response.writeHead(200, {"Content-Type": "application/" + getExt() });
-    this.response.write(data);
-    this.response.end();
-  },
-  sendError: function() {
-    this.response.writeHead(404);
-    this.response.write(JSON.stringify({
-      status: 404,
-      message: "Not Found"
-    }));
-    this.response.end();
-  }
-});
+var sendErrorResponse = sendResponse(404);
+var sendSuccessResponse = sendResponse(200);
 
 // ====
 // CREATING THE SERVER
 var server = http.createServer(function(request, response) {
   var cache = new Cache(),
       uri = new URI(request.url),
-      httpResponse = new HTTPResponse(response),
       responseFile = new ResponseFile(request),
       responseFileAbsolutePath = responseFile.getAbsolutePath(getResponseDirPath());
+
   fs.exists(responseFileAbsolutePath, function(exists) {
     if (uri.isValid() && exists) {
       if (cache.get(responseFileAbsolutePath)) {
-        httpResponse.send(cache.get(responseFileAbsolutePath));
+        sendSuccessResponse(response, cache.get(responseFileAbsolutePath));
       } else {
         fs.readFile(responseFileAbsolutePath, function(err, data) {
           cache.set(responseFileAbsolutePath, data);
-          httpResponse.sendFoundResponse(cache.get(responseFileAbsolutePath));
+          sendSuccessResponse(response, cache.get(responseFileAbsolutePath));
         });
       }
     } else if (uri.isValid() && !exists) {
-      httpResponse.sendError();
       console.log(['404:', responseFileAbsolutePath, 'not found.'].join(' '));
+      sendErrorResponse(response, JSON.stringify({
+        status: 404,
+        message: 'Not Found'
+      }));
     }
   });
 });
