@@ -28,32 +28,30 @@ var getCommandLineOptions = function(option) {
 
 // ====
 // RESPONSE DIR
-var ResponseDir = function() {};
-_(ResponseDir.prototype).extend({
-  getPath: function() {
-    var responsePath,
-        responseDirWithoutSlashes;
-
-    if (getCommandLineOptions('path')) {
-      responseDirWithoutSlashes = getCommandLineOptions('path').replace(/(^\/)|(\/$)/g, '');
-      responsePath = [process.cwd(), responseDirWithoutSlashes].join('/');
-    } else {
-      responsePath = './responses';
-    }
-
-    return responsePath;
+var getResponseDirPath = (function(responseDirPath) {
+  var responseDirOption;
+  if (responseDirPath) {
+    responseDirOption = [
+      process.cwd(),
+      responseDirPath.replace(/(^\/)|(\/$)/g, '')
+    ].join('/');
   }
-});
-
-ResponseDir.get = (function() {
-  var instance;
   return function() {
-    if (!instance) {
-      instance = new ResponseDir();
-    }
-    return instance;
+    return responseDirOption || './responses';
   };
-})();
+})(getCommandLineOptions('path'));
+
+// ====
+// FILE EXTENSION
+var getExt = (function(extension) {
+  return function() {
+    return extension || 'json';
+  };
+})(getCommandLineOptions('format'));
+
+// ====
+// PORT NUMBER
+var port = getCommandLineOptions('port') || '8080';
 
 // ====
 // RESPONSE FILE
@@ -61,17 +59,11 @@ var ResponseFile = function(options) {
   this.options = options;
 };
 _(ResponseFile.prototype).extend({
-  getContents: function() {
-
-  },
   getAbsolutePath: function(responseDir) {
     var urlParts = _.compact(this.options.url.split('/')),
-        filename = [this.options.method.toLowerCase()].concat(urlParts).join('.') + this.getFileExt();
+        filename = [this.options.method.toLowerCase()].concat(urlParts.concat(getExt())).join('.');
 
     return [responseDir, filename].join('/');
-  },
-  getFileExt: function() {
-    return '.' + (getCommandLineOptions('format') || 'json');
   }
 });
 
@@ -106,7 +98,7 @@ var HTTPResponse = function(response) {
 };
 _(HTTPResponse.prototype).extend({
   sendFoundResponse: function(data) {
-    this.response.writeHead(200, {"Content-Type": "application/" + (getCommandLineOptions('format') || 'json') });
+    this.response.writeHead(200, {"Content-Type": "application/" + getExt() });
     this.response.write(data);
     this.response.end();
   },
@@ -127,8 +119,7 @@ var server = http.createServer(function(request, response) {
       uri = new URI(request.url),
       httpResponse = new HTTPResponse(response),
       responseFile = new ResponseFile(request),
-      responseFileAbsolutePath = responseFile.getAbsolutePath(ResponseDir.get().getPath());
-
+      responseFileAbsolutePath = responseFile.getAbsolutePath(getResponseDirPath());
   fs.exists(responseFileAbsolutePath, function(exists) {
     if (uri.isValid() && exists) {
       if (cache.get(responseFileAbsolutePath)) {
@@ -148,6 +139,6 @@ var server = http.createServer(function(request, response) {
 
 // ====
 // SETTING UP THE PORT
-server.listen(getCommandLineOptions('port') || '8080');
-console.log(_.template('Listening to port <%= port %>...', { port: getCommandLineOptions('port') || '8080' }));
+server.listen(port);
+console.log(_.template('Listening to port <%= port %>...', { port: port }));
 
