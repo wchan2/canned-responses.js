@@ -1,5 +1,7 @@
 #!/usr/local/bin/node
 
+"use strict";
+
 var http = require('http'),
     fs = require('fs'),
     _ = require('lodash');
