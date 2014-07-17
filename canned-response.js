@@ -6,7 +6,6 @@ var http = require('http'),
     fs = require('fs'),
     _ = require('lodash');
 
-
 // ====
 // TODO:
 // for PUT or POST requests, it might make sense to dynamically add and update the list
@@ -58,17 +57,11 @@ var port = getCommandLineOptions('port') || '8080';
 
 // ====
 // RESPONSE FILE
-var ResponseFile = function(options) {
-  this.options = options;
-};
-_(ResponseFile.prototype).extend({
-  getAbsolutePath: function(responseDir) {
-    var urlParts = _.compact(this.options.url.split('/')),
-        filename = [this.options.method.toLowerCase()].concat(urlParts.concat(getExt())).join('.');
+var getResponseFileName = function(method, url) {
+  var urlParts = _.compact(url.split('/'));
 
-    return [responseDir, filename].join('/');
-  }
-});
+  return [method.toLowerCase()].concat(urlParts.concat(getExt())).join('.');
+};
 
 // ====
 // CACHE
@@ -112,8 +105,7 @@ var sendSuccessResponse = sendResponse(200);
 var server = http.createServer(function(request, response) {
   var cache = new Cache(),
       uri = new URI(request.url),
-      responseFile = new ResponseFile(request),
-      responseFileAbsolutePath = responseFile.getAbsolutePath(getResponseDirPath());
+      responseFileAbsolutePath = [getResponseDirPath(), getResponseFileName(request.method, request.url)].join('/');
 
   fs.exists(responseFileAbsolutePath, function(exists) {
     if (uri.isValid() && exists) {
