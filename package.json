@@ -1,14 +1,15 @@
 {
-  "name": "resty-js",
+  "name": "canned-response.js",
   "version": "0.0.1",
   "description": "A package that allows a DSL to make requests and provide an easy way to serve canned responses for isolated front end development.",
   "main": "index.js",
+  "start": "node canned-response.js",
   "scripts": {
-    "test": "grunt test"
+    "test": "mocha specs"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/wchan2/resty.js"
+    "url": "http://github.com/wchan2/canned-response.js"
   },
   "author": "Will Chan",
   "license": "MIT",
@@ -17,6 +18,9 @@
     "request": "^2.36.0"
   },
   "devDependencies": {
-    "lodash": "^2.4.1"
+    "grunt": "^0.4.5",
+    "lodash": "^2.4.1",
+    "grunt-contrib-watch": "0.5.3",
+    "grunt-contrib-jshint": "0.8.0"
   }
 }
