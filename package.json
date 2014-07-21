@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "A package that allows a DSL to make requests and provide an easy way to serve canned responses for isolated front end development.",
   "main": "index.js",
-  "start": "node canned-response.js",
+  "start": "node server.js",
+  "preferGlobal": true,
   "scripts": {
     "test": "mocha specs"
   },
