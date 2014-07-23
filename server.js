@@ -25,15 +25,15 @@ var http = require('http'),
     cli = require('./lib/cli'),
     file = require('./lib/file');
 
+// COMMAND LINE OPTIONS
+// ====
+var options = cli.getCommandLineOptions(process.argv);
+
 // ====
 // URI
 var isValidUri = function(uri) {
   return uri !== '/favicon.ico';
 };
-
-// ====
-// PORT NUMBER
-var port = cli.getCommandLineOptions('port') || '8080';
 
 // ====
 // CREATING THE SERVER
@@ -66,6 +66,6 @@ var server = http.createServer(function(request, response) {
 
 // ====
 // SETTING UP THE PORT
-server.listen(port);
-console.log(_.template('Listening to port <%= port %>...', { port: port }));
+server.listen(options.port || 8080);
+console.log(_.template('Listening to port <%= port %>...', { port: options.port || 8080 }));
 
