@@ -5,12 +5,19 @@ A NodeJS script that allows http responses to be "canned". This allows the front
 
 ## Installing dependencies
 
-	# install the dependencies listed inside package.json
+Install the dependencies listed inside package.json
+
 	npm install 
 
-	# uses a default start command and starts a server serving up response files
-	# from the response directory and on port 8080
+## Starting the canned-responses.js server
+
+Start the canned-responses.js server with the default port `8080`, `json` format, and `responses` directory in the project.
+
 	npm start
+
+Specify different options using the command line options such as `format`, path to `responses` directory, and the `port` to run the server on.
+
+	./server.js -format json -path responses -port 9000
 
 ## Getting started
 
@@ -21,10 +28,6 @@ A NodeJS script that allows http responses to be "canned". This allows the front
 2. Run the `server.js` file to start the server to serve the "canned" responses
 
 	./server.js # runs on the default port 8080 and the responses directory in the current directory
-
-## Options for Starting the Server
-
-	./server.js -format json -path responses -port 9000
 
 ## Response Filename Convention
 
