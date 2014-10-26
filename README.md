@@ -8,7 +8,8 @@ A NodeJS script that allows http responses to be "canned". This allows the front
 	# install the dependencies listed inside package.json
 	npm install 
 
-	# uses a default start command and starts a server serving up response files from the response directory and on port 8080
+	# uses a default start command and starts a server serving up response files
+	# from the response directory and on port 8080
 	npm start
 
 ## Getting started
