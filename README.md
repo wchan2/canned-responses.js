@@ -19,6 +19,10 @@ Specify different options using the command line options such as `format`, path 
 
 	./server.js -format json -path responses -port 9000
 
+As a side note, it can also be ran with the node command.
+
+	ndoe server.js -format json -path responses -port 9000
+
 ## Getting started
 
 1. Create a file that represents a response for a given endpoint inside a `responses` directory
@@ -27,7 +31,8 @@ Specify different options using the command line options such as `format`, path 
 
 2. Run the `server.js` file to start the server to serve the "canned" responses
 
-	./server.js # runs on the default port 8080 and the responses directory in the current directory
+	./server.js 	# runs on the default port 8080 and the responses directory in the current directory
+	node server.js 	# another way to run the server.js
 
 ## Response Filename Convention
 
