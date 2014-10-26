@@ -3,9 +3,9 @@ canned-responses.js
 
 A NodeJS script that allows http responses to be "canned". This allows the front end development to be iterated on and developed quickly without relying on external resources from back end developers.
 
-## Installing dependencies
+## Installing Dependencies
 
-Install the dependencies listed inside package.json
+Install the dependencies listed inside package.json.
 
 	npm install 
 
@@ -42,4 +42,4 @@ The convention follows with a method name, the url path, and finally the content
 
 ## License
 
-Ruby on Rails is released under the [MIT License](http://www.opensource.org/licenses/MIT).
+canned-responses.js is released under the [MIT License](http://www.opensource.org/licenses/MIT).
