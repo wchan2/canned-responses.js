@@ -1,9 +1,9 @@
 {
   "name": "canned-response.js",
   "version": "0.0.1",
-  "description": "A package that allows a DSL to make requests and provide an easy way to serve canned responses for isolated front end development.",
-  "main": "index.js",
-  "start": "node server.js",
+  "description": "A package that allows a server side resources to be \"canned\" or mocked so that front end developers don't have to rely on back end resources to be built out.",
+  "main": "server.js",
+  "start": "node server.js -path responses -p 8080",
   "preferGlobal": true,
   "scripts": {
     "test": "mocha specs"
