@@ -1,11 +1,15 @@
 canned-responses.js
 ===================
+
 A NodeJS script that allows http responses to be "canned". This allows the front end development to be iterated on and developed quickly without relying on external resources from back end developers.
 
 ## Installing dependencies
 
-	npm install # install the dependencies listed inside package.json
-	npm start   # uses a default start command and starts a server serving up response files from the response directory and on port 8080
+	# install the dependencies listed inside package.json
+	npm install 
+
+	# uses a default start command and starts a server serving up response files from the response directory and on port 8080
+	npm start
 
 ## Getting started
 
@@ -19,11 +23,19 @@ A NodeJS script that allows http responses to be "canned". This allows the front
 
 ## Options for Starting the Server
 
-	./server.js -format json -path responses
+	./server.js -format json -path responses -port 9000
 
 ## Response Filename Convention
+
 The convention follows with a method name, the url path, and finally the content type separated by a period (.). See below for some examples.
 
 	get.json 		   	# resolves a GET request to / in json
-	get.xml  		    # resolves a GET request to / in xml
 	post.hello.sir.json # resolves a POST request to /hello/sir in json
+
+## Coming Soon
+
+- Allow the use of `-format <format>` to allow another content type ie. `-format xml` to read XML instead.
+
+## License
+
+Ruby on Rails is released under the [MIT License](http://www.opensource.org/licenses/MIT).
