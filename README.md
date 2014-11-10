@@ -1,4 +1,4 @@
-canned-responses.js [![Build Status](https://travis-ci.org/wchan2/canned-response.png?branch=master)](https://travis-ci.org/wchan2/canned-response)
+canned-responses.js [![Build Status](https://travis-ci.org/wchan2/canned-responses.js.png?branch=master)](https://travis-ci.org/wchan2/canned-responses.js)
 ====
 
 A NodeJS script that allows http responses to be "canned". This allows the front end development to be iterated on and developed quickly without relying on external resources from back end developers.
