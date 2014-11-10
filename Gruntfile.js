@@ -20,11 +20,6 @@ module.exports = function(grunt) {
         }
       }
     },
-    mochaTest: {
-      test: {
-        src: ['specs/**/*.js']
-      }
-    },
     watch: {
       files: ['<%= jshint.files %>'],
       tasks: ['jshint']
@@ -33,11 +28,20 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-mocha-test');
 
-  grunt.registerTask('test', ['mochaTest']);
   grunt.registerTask('lint', ['jshint']);
-  grunt.registerTask('default', ['jshint', 'test']);
+  grunt.registerTask('default', ['jshint']);
+  grunt.registerTask('test', 'Runs the jasmine tests inside the specs folder', function() {
+    var done = this.async();
+    exec('jasmine-node specs/', function(error, stdout, stderror) {
+      sys.print(stdout, stderror);
+      if (error) {
+        done(false);
+      } else {
+        done();
+      }
+    });
+  });
 
   grunt.event.on('watch', function() {
     exec('npm test', function(error, stdout, stderror) {

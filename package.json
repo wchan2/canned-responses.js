@@ -6,7 +6,7 @@
   "start": "node server.js -path responses -p 8080",
   "preferGlobal": true,
   "scripts": {
-    "test": "mocha specs"
+    "test": "jasmine-node specs/"
   },
   "repository": {
     "type": "git",
@@ -22,8 +22,6 @@
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "0.8.0",
     "grunt-contrib-watch": "0.5.3",
-    "grunt-mocha-test": "^0.12.2",
-    "lodash": "^2.4.1",
-    "mocha": "^2.0.1"
+    "lodash": "^2.4.1"
   }
 }

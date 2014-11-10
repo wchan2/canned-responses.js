@@ -41,6 +41,30 @@ The convention follows with a method name, the url path, and finally the content
 	get.json 		   	# resolves a GET request to / in json
 	post.hello.sir.json # resolves a POST request to /hello/sir in json
 
+## Installing Build and Test Dependencies
+
+	npm install -g grunt-cli    # installing the build dependencies
+	npm install -g jasmine-node # installing the test dependencies
+
+## Building
+
+	grunt lint
+
+## Running the Tests
+
+There are three different ways to run tests as it uses primarily [jasmine-node](https://github.com/mhevery/jasmine-node).
+
+	npm test
+
+OR
+
+	grunt test
+
+OR
+
+	jasmine-node spec/
+
+
 ## Coming Soon
 
 - Allow the use of `-format <format>` to allow another content type ie. `-format xml` to read XML instead.
