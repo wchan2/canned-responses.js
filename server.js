@@ -3,14 +3,7 @@
 // ====
 // TODO:
 // watch for the file changes to reload the cache
-// write a logger
-
-// TODO
-// throw errors for invalid command line options
-// allow for managing different command line options
-// - port
-// - format
-// - responses folder path
+// - throw errors for invalid command line options
 // - config file to read from a configuration file
 
 var http = require('http'),
@@ -41,10 +34,7 @@ var http = require('http'),
         responseFileAbsolutePath;
 
     responseCache = new cache.Cache(),
-    responseFileAbsolutePath = [
-      file.getResponseDirPath(),
-      file.getResponseFileName(request.method, request.url)
-    ].join('/');
+    responseFileAbsolutePath = [file.getResponseDirPath(), file.getResponseFilename(request.method, request.url)].join('/');
 
     fs.exists(responseFileAbsolutePath, function(exists) {
       if (isValidUri(request.url) && exists) {
