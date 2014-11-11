@@ -66,26 +66,6 @@ var File = require('../lib/file').File;
         });
       });
 
-      describe('.getExt()', function() {
-        var testFile;
-        beforeEach(function() {
-          testFile = new File();
-        });
-
-        it('exists', function() {
-          expect(testFile.getExt).toEqual(jasmine.any(Function));
-        });
-
-        it('returns `json` when `.ext` is not initialized', function() {
-          expect(testFile.getExt()).toEqual('json');
-        });
-
-        it('returns the value stored in `.ext` when set', function() {
-          testFile.ext = 'fakeExt';
-          expect(testFile.getExt()).toEqual('fakeExt');
-        });
-      });
-
       describe('.getResponseFilename()', function() {
         var testFile;
         beforeEach(function() {
