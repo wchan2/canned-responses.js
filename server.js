@@ -1,11 +1,5 @@
 #!/usr/local/bin/node
 
-// ====
-// TODO:
-// watch for the file changes to reload the cache
-// - throw errors for invalid command line options
-// - config file to read from a configuration file
-
 var http = require('http'),
     fs = require('fs'),
     _ = require('lodash'),

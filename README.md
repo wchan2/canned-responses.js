@@ -67,7 +67,9 @@ OR
 
 ## Coming Soon
 
-- Allow the use of `-format <format>` to allow another content type ie. `-format xml` to read XML instead.
+- Watch for file changes to reload cache
+- Throw errors for invalid command line options
+- Config to read from configuration file
 
 ## License
 
